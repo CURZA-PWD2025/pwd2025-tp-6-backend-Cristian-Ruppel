@@ -1,4 +1,4 @@
-# TRABAJO N°6
+![image](https://github.com/user-attachments/assets/41bad831-627d-4683-9cb2-925652236447)# TRABAJO N°6
 
 Vamos a desarrollar nuestro `backend` para gestionar una tienda de productos informáticos.
 para lo cual crearemos los modulos:
@@ -25,6 +25,7 @@ El **Articulo** tienen como atributos
 | stock       |      int       |
 | marca       |   MarcaModel   |
 | proveedor   | ProveedorModel |
+| categorias | list[CategoriaModel]|
 
 **Categorias** y **Marca**
 

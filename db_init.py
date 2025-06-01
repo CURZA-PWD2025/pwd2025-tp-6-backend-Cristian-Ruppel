@@ -4,15 +4,17 @@ from mysql.connector import Error, errorcode
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
-DB_NAME = os.getenv("DB_NAME")
+load_dotenv('.env-dev')
+DB_NAME = os.getenv("DB_NAME", "pwd2025_tp6")
 
 DB_CONFIG = {
-    'host': os.getenv("DB_HOST"),
-    'user': os.getenv("DB_USER"),
-    'password': os.getenv("DB_PASSWORD"),
-    'port': os.getenv("DB_PORT"),
+    'host': 'localhost',  
+    'user': 'root',       
+    'password': '',       
+    'port': 3308, 
+    'database': 'pwd2025_tp6',
     'raise_on_warnings': True,
+    'auth_plugin': 'mysql_native_password'  
 }
 TABLES = {}
 SEEDS = {}
@@ -167,7 +169,6 @@ def create_database(cursor):
 
 
 def create_tables(tables, cursor):
-
     for table_name in tables:
         table_description = tables[table_name]
         try:
@@ -197,18 +198,28 @@ def seeds_tables(seed, cursor):
             print("OK")
 
 
-cxn = mysql.connector.connect(**DB_CONFIG)
-cursor = cxn.cursor()
-cursor.close()
-cxn.close()
+try:
+    temp_cxn = mysql.connector.connect(
+        host='localhost',
+        user='root',
+        password='',
+        port=3308,
+        auth_plugin='mysql_native_password'
+    )
+    temp_cursor = temp_cxn.cursor()
+    create_database(temp_cursor)
+    temp_cxn.close()
 
-create_database(cursor)
-CONF_DB = DB_CONFIG.copy()
-CONF_DB['database'] = DB_NAME
-cxn = mysql.connector.connect(**CONF_DB)
-cursor = cxn.cursor()
-create_tables(TABLES, cursor)
-seeds_tables(SEEDS, cursor)
-cxn.commit()
-cursor.close()
-cxn.close()
+    cxn = mysql.connector.connect(**DB_CONFIG)
+    cursor = cxn.cursor()
+    create_tables(TABLES, cursor)
+    seeds_tables(SEEDS, cursor)
+    cxn.commit()
+
+except Error as err:
+    print(f"\n¡Error crítico!: {err}")
+finally:
+    if 'cursor' in locals(): cursor.close()
+    if 'cxn' in locals(): cxn.close()
+    if 'temp_cursor' in locals(): temp_cursor.close()
+    if 'temp_cxn' in locals(): temp_cxn.close()

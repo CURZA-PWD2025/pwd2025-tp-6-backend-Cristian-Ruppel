@@ -1,51 +1,44 @@
-from .categoria_model import CategoriaModel
+from app._modulo.categorias.categoria_model import CategoriaModel
 
 class CategoriaController:
-    
     @staticmethod
     def get_all():
         try:
-            categorias = CategoriaModel.get_all()
-            return categorias if categorias else []
+            return CategoriaModel.get_all()
         except Exception as e:
             return {'error': str(e)}
-    
+
     @staticmethod
     def get_one(id):
         try:
-            categoria = CategoriaModel(id=id).get_by_id()
+            categoria = CategoriaModel.get_by_id(id)
             return categoria if categoria else {'error': 'Categoría no encontrada'}
         except Exception as e:
             return {'error': str(e)}
-    
+
     @staticmethod
     def create(data):
         try:
-            if not data.get('descripcion'):
-                return {'error': 'Descripción es requerida'}
-                
-            categoria = CategoriaModel(descripcion=data['descripcion'])
-            result = categoria.create()
-            return {'success': True, 'id': result} if result else {'error': 'Error al crear'}
+            if not data.get('nombre'):  
+                return {'error': 'El nombre es requerido'}  
+            categoria = CategoriaModel(nombre=data['nombre']) 
+            return {'success': True, 'id': categoria.id} if categoria.create() else {'error': 'Error al crear'}
         except Exception as e:
             return {'error': str(e)}
-    
+
     @staticmethod
     def update(data):
         try:
             if not data.get('id'):
                 return {'error': 'ID es requerido'}
-                
             categoria = CategoriaModel.deserializar(data)
-            result = categoria.update()
-            return {'success': True} if result else {'error': 'Error al actualizar'}
+            return {'success': True} if categoria.update() else {'error': 'Error al actualizar'}
         except Exception as e:
             return {'error': str(e)}
-    
+
     @staticmethod
     def delete(id):
         try:
-            result = CategoriaModel.delete(id)
-            return {'success': True} if result else {'error': 'Error al eliminar'}
+            return {'success': True} if CategoriaModel.delete(id) else {'error': 'Error al eliminar'}
         except Exception as e:
             return {'error': str(e)}

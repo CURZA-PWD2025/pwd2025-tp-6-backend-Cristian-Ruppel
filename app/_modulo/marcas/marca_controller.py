@@ -1,51 +1,47 @@
-from .marca_model import MarcaModel
+from app._modulo.marcas.marca_model import MarcaModel  
 
 class MarcaController:
-    
     @staticmethod
     def get_all():
         try:
-            marcas = MarcaModel.get_all()
-            return marcas if marcas else []
+            return MarcaModel.get_all()
         except Exception as e:
             return {'error': str(e)}
-    
+
     @staticmethod
     def get_one(id):
         try:
-            marca = MarcaModel(id=id).get_by_id()
+            marca = MarcaModel.get_by_id(id)
             return marca if marca else {'error': 'Marca no encontrada'}
         except Exception as e:
             return {'error': str(e)}
-    
+
     @staticmethod
     def create(data):
         try:
-            if not data.get('descripcion'):
-                return {'error': 'Descripción es requerida'}
-                
-            marca = MarcaModel(descripcion=data['descripcion'])
-            result = marca.create()
-            return {'success': True, 'id': result} if result else {'error': 'Error al crear'}
+            if not data.get('nombre'): 
+                return {'error': 'Nombre es requerido'}
+            marca = MarcaModel(nombre=data['nombre'])  
+            return {'success': True, 'id': marca.id} if marca.create() else {'error': 'Error al crear'}
         except Exception as e:
             return {'error': str(e)}
-    
+
     @staticmethod
     def update(data):
         try:
             if not data.get('id'):
                 return {'error': 'ID es requerido'}
-                
-            marca = MarcaModel.deserializar(data)
-            result = marca.update()
-            return {'success': True} if result else {'error': 'Error al actualizar'}
+            marca = MarcaModel(
+                id=data['id'],
+                nombre=data.get('nombre', "")
+            )
+            return {'success': True} if marca.update() else {'error': 'Error al actualizar'}
         except Exception as e:
             return {'error': str(e)}
-    
+
     @staticmethod
     def delete(id):
         try:
-            result = MarcaModel.delete(id)
-            return {'success': True} if result else {'error': 'Error al eliminar'}
+            return {'success': True} if MarcaModel.delete(id) else {'error': 'Error al eliminar'}
         except Exception as e:
             return {'error': str(e)}

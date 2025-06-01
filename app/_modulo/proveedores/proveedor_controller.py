@@ -1,23 +1,22 @@
-from .proveedor_model import ProveedorModel
+from app._modulo.database.conect_db import ConectDB
+from app._modulo.proveedores.proveedor_model import ProveedorModel
 
 class ProveedorController:
-    
     @staticmethod
     def get_all():
         try:
-            proveedores = ProveedorModel.get_all()
-            return proveedores if proveedores else []
+            return ProveedorModel.get_all()
         except Exception as e:
             return {'error': str(e)}
-    
+
     @staticmethod
     def get_one(id):
         try:
-            proveedor = ProveedorModel(id=id).get_by_id()
+            proveedor = ProveedorModel.get_by_id(id)
             return proveedor if proveedor else {'error': 'Proveedor no encontrado'}
         except Exception as e:
             return {'error': str(e)}
-    
+
     @staticmethod
     def create(data):
         try:
@@ -31,11 +30,10 @@ class ProveedorController:
                 direccion=data['direccion'],
                 email=data['email']
             )
-            result = proveedor.create()
-            return {'success': True, 'id': result} if result else {'error': 'Error al crear'}
+            return {'success': True, 'id': proveedor.id} if proveedor.create() else {'error': 'Error al crear'}
         except Exception as e:
             return {'error': str(e)}
-    
+
     @staticmethod
     def update(data):
         try:
@@ -43,15 +41,13 @@ class ProveedorController:
                 return {'error': 'ID es requerido'}
                 
             proveedor = ProveedorModel.deserializar(data)
-            result = proveedor.update()
-            return {'success': True} if result else {'error': 'Error al actualizar'}
+            return {'success': True} if proveedor.update() else {'error': 'Error al actualizar'}
         except Exception as e:
             return {'error': str(e)}
-    
+
     @staticmethod
     def delete(id):
         try:
-            result = ProveedorModel.delete(id)
-            return {'success': True} if result else {'error': 'Error al eliminar'}
+            return {'success': True} if ProveedorModel.delete(id) else {'error': 'Error al eliminar'}
         except Exception as e:
             return {'error': str(e)}

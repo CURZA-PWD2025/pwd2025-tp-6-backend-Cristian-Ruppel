@@ -1,4 +1,4 @@
-from ...database.conect_db import ConectDB
+from app._modulo.database.conect_db import ConectDB
 
 class ProveedorModel:
     def __init__(self, id=0, nombre="", telefono="", direccion="", email=""):
@@ -8,7 +8,7 @@ class ProveedorModel:
         self.direccion = direccion
         self.email = email
 
-    def serialize(self):
+    def serializar(self):  
         return {
             "id": self.id,
             "nombre": self.nombre,
@@ -18,15 +18,25 @@ class ProveedorModel:
         }
 
     @staticmethod
+    def deserializar(data):
+        return ProveedorModel(
+            id=data.get('id', 0),
+            nombre=data.get('nombre', ""),
+            telefono=data.get('telefono', ""),
+            direccion=data.get('direccion', ""),
+            email=data.get('email', "")
+        )
+
+    @staticmethod
     def get_all():
         cnx = ConectDB.get_connect()
         try:
             with cnx.cursor(dictionary=True) as cursor:
                 cursor.execute("SELECT * FROM PROVEEDORES")
-                return [ProveedorModel(**row) for row in cursor.fetchall()]
+                return [ProveedorModel(**row).serializar() for row in cursor.fetchall()]
         except Exception as e:
             print(f"Error en get_all: {str(e)}")
-            return None
+            return []
         finally:
             cnx.close()
 
@@ -37,7 +47,7 @@ class ProveedorModel:
             with cnx.cursor(dictionary=True) as cursor:
                 cursor.execute("SELECT * FROM PROVEEDORES WHERE id = %s", (id,))
                 result = cursor.fetchone()
-                return ProveedorModel(**result) if result else None
+                return ProveedorModel(**result).serializar() if result else None
         except Exception as e:
             print(f"Error en get_by_id: {str(e)}")
             return None
@@ -52,12 +62,13 @@ class ProveedorModel:
                     "INSERT INTO PROVEEDORES (nombre, telefono, direccion, email) VALUES (%s, %s, %s, %s)",
                     (self.nombre, self.telefono, self.direccion, self.email)
                 )
+                self.id = cursor.lastrowid
                 cnx.commit()
-                return cursor.lastrowid
+                return True
         except Exception as e:
             cnx.rollback()
             print(f"Error en create: {str(e)}")
-            return None
+            return False
         finally:
             cnx.close()
 
@@ -70,7 +81,7 @@ class ProveedorModel:
                     (self.nombre, self.telefono, self.direccion, self.email, self.id)
                 )
                 cnx.commit()
-                return True
+                return cursor.rowcount > 0
         except Exception as e:
             cnx.rollback()
             print(f"Error en update: {str(e)}")
@@ -83,10 +94,6 @@ class ProveedorModel:
         cnx = ConectDB.get_connect()
         try:
             with cnx.cursor() as cursor:
-                cursor.execute("SELECT COUNT(*) FROM ARTICULOS WHERE proveedor_id = %s", (id,))
-                if cursor.fetchone()["COUNT(*)"] > 0:
-                    return False
-                
                 cursor.execute("DELETE FROM PROVEEDORES WHERE id = %s", (id,))
                 cnx.commit()
                 return True

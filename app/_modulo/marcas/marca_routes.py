@@ -3,32 +3,32 @@ from .marca_controller import MarcaController
 
 marca_bp = Blueprint('marca', __name__)
 
-@marca_bp.route('/marcas', methods=['GET'])
+@marca_bp.route('/', methods=['GET'])
 def get_all():
     response = MarcaController.get_all()
-    if isinstance(response, dict) and 'error' in response:
+    if 'error' in response:
         return jsonify(response), 500
-    return jsonify(response) if response else jsonify({'mensaje': 'No hay marcas'}), 404
+    return jsonify(response) if response else jsonify({'mensaje': 'No hay marcas'}), 200
 
-@marca_bp.route('/marcas/<int:id>', methods=['GET'])
+@marca_bp.route('/<int:id>', methods=['GET'])
 def get_one(id):
     response = MarcaController.get_one(id)
-    if isinstance(response, dict) and 'error' in response:
-        return jsonify(response), 500
-    return jsonify(response) if response else jsonify({'mensaje': 'Marca no encontrada'}), 404
+    if 'error' in response:
+        return jsonify(response), 404 if response['error'] == 'Marca no encontrada' else 500
+    return jsonify(response)
 
-@marca_bp.route('/marcas', methods=['POST'])
+@marca_bp.route('/', methods=['POST'])
 def create():
     data = request.get_json()
     if not data:
         return jsonify({'error': 'Datos requeridos'}), 400
     
     response = MarcaController.create(data)
-    if isinstance(response, dict) and 'error' in response:
+    if 'error' in response:
         return jsonify(response), 400
-    return jsonify({'mensaje': 'Marca creada', 'id': response}), 201
+    return jsonify({'mensaje': 'Marca creada', 'id': response['id']}), 201
 
-@marca_bp.route('/marcas/<int:id>', methods=['PUT'])
+@marca_bp.route('/<int:id>', methods=['PUT'])
 def update(id):
     data = request.get_json()
     if not data:
@@ -36,13 +36,13 @@ def update(id):
     
     data['id'] = id
     response = MarcaController.update(data)
-    if isinstance(response, dict) and 'error' in response:
+    if 'error' in response:
         return jsonify(response), 400
     return jsonify({'mensaje': 'Marca actualizada'}), 200
 
-@marca_bp.route('/marcas/<int:id>', methods=['DELETE'])
+@marca_bp.route('/<int:id>', methods=['DELETE'])
 def delete(id):
     response = MarcaController.delete(id)
-    if isinstance(response, dict) and 'error' in response:
+    if 'error' in response:
         return jsonify(response), 400
     return jsonify({'mensaje': 'Marca eliminada'}), 200

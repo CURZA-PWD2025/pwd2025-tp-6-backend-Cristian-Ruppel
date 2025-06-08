@@ -1,30 +1,27 @@
 from flask import Blueprint, jsonify, request
 from .categoria_controller import CategoriaController
 
-categoria_bp = Blueprint('categoria', __name__)
+categoria_bp = Blueprint('categoria', __name__, url_prefix='/api/categorias')
 
 @categoria_bp.route('/', methods=['GET'])
 def get_all():
     response = CategoriaController.get_all()
     if 'error' in response:
         return jsonify(response), 500
-    return jsonify(response) if response else jsonify({'mensaje': 'No hay categorías'}), 200
+    return jsonify(response), 200
 
 @categoria_bp.route('/<int:id>', methods=['GET'])
 def get_one(id):
     response = CategoriaController.get_one(id)
     if 'error' in response:
         return jsonify(response), 404 if response['error'] == 'Categoría no encontrada' else 500
-    return jsonify(response)
+    return jsonify(response), 200
 
 @categoria_bp.route('/', methods=['POST'])
 def create():
     data = request.get_json()
     if not data:
         return jsonify({'error': 'Datos requeridos'}), 400
-    
-    if not data.get('nombre'):
-        return jsonify({'error': 'El campo "nombre" es requerido'}), 400
     
     response = CategoriaController.create(data)
     if 'error' in response:

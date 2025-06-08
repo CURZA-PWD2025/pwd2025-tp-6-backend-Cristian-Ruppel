@@ -1,18 +1,18 @@
-from app._modulo.marcas.marca_model import MarcaModel  
+from .categoria_model import CategoriaModel
 
-class MarcaController:
+class CategoriaController:
     @staticmethod
     def get_all():
         try:
-            return MarcaModel.get_all()
+            return CategoriaModel.get_all()
         except Exception as e:
             return {'error': str(e)}
 
     @staticmethod
     def get_one(id):
         try:
-            marca = MarcaModel.get_by_id(id)
-            return marca if marca else {'error': 'Marca no encontrada'}
+            categoria = CategoriaModel.get_one(id)
+            return categoria if categoria else {'error': 'Categoría no encontrada'}
         except Exception as e:
             return {'error': str(e)}
 
@@ -21,8 +21,8 @@ class MarcaController:
         try:
             if not data.get('nombre'): 
                 return {'error': 'Nombre es requerido'}
-            marca = MarcaModel(nombre=data['nombre'])  
-            return {'success': True, 'id': marca.id} if marca.create() else {'error': 'Error al crear'}
+            categoria = CategoriaModel.deserializar(data)
+            return {'success': True, 'id': categoria.id} if categoria.create() else {'error': 'Error al crear'}
         except Exception as e:
             return {'error': str(e)}
 
@@ -31,17 +31,14 @@ class MarcaController:
         try:
             if not data.get('id'):
                 return {'error': 'ID es requerido'}
-            marca = MarcaModel(
-                id=data['id'],
-                nombre=data.get('nombre', "")
-            )
-            return {'success': True} if marca.update() else {'error': 'Error al actualizar'}
+            categoria = CategoriaModel.deserializar(data)
+            return {'success': True} if categoria.update() else {'error': 'Error al actualizar'}
         except Exception as e:
             return {'error': str(e)}
 
     @staticmethod
     def delete(id):
         try:
-            return {'success': True} if MarcaModel.delete(id) else {'error': 'Error al eliminar'}
+            return {'success': True} if CategoriaModel.delete(id) else {'error': 'Error al eliminar'}
         except Exception as e:
             return {'error': str(e)}

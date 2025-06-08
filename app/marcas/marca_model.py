@@ -1,4 +1,4 @@
-from app._modulo.database.conect_db import ConectDB
+from app.database.conect_db import ConectDB
 
 class MarcaModel:
     def __init__(self, id=0, nombre=""):
@@ -25,23 +25,17 @@ class MarcaModel:
             with cnx.cursor(dictionary=True) as cursor:
                 cursor.execute("SELECT id, nombre FROM marcas")
                 return [MarcaModel(**row).serializar() for row in cursor.fetchall()]
-        except Exception as e:
-            print(f"Error en get_all: {str(e)}")
-            return []
         finally:
             cnx.close()
 
     @staticmethod
-    def get_by_id(id):
+    def get_one(id):
         cnx = ConectDB.get_connect()
         try:
             with cnx.cursor(dictionary=True) as cursor:
                 cursor.execute("SELECT id, nombre FROM marcas WHERE id = %s", (id,))
                 result = cursor.fetchone()
                 return MarcaModel(**result).serializar() if result else None
-        except Exception as e:
-            print(f"Error en get_by_id: {str(e)}")
-            return None
         finally:
             cnx.close()
 
@@ -56,9 +50,8 @@ class MarcaModel:
                 self.id = cursor.lastrowid
                 cnx.commit()
                 return True
-        except Exception as e:
+        except Exception:
             cnx.rollback()
-            print(f"Error en create: {str(e)}")
             return False
         finally:
             cnx.close()
@@ -73,9 +66,8 @@ class MarcaModel:
                 )
                 cnx.commit()
                 return cursor.rowcount > 0
-        except Exception as e:
+        except Exception:
             cnx.rollback()
-            print(f"Error en update: {str(e)}")
             return False
         finally:
             cnx.close()
@@ -88,9 +80,8 @@ class MarcaModel:
                 cursor.execute("DELETE FROM marcas WHERE id = %s", (id,))
                 cnx.commit()
                 return True
-        except Exception as e:
+        except Exception:
             cnx.rollback()
-            print(f"Error en delete: {str(e)}")
             return False
         finally:
             cnx.close()

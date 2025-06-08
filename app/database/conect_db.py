@@ -1,16 +1,20 @@
+import os
 import mysql.connector
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class ConectDB:
     @staticmethod
     def get_connect():
         try:
             return mysql.connector.connect(
-                user="root",
-                password="",
-                host="localhost",
-                port=3308,  
-                database="pwd2025_tp6",
-                auth_plugin='mysql_native_password'  
+                user=os.getenv('DB_USER', 'root'),
+                password=os.getenv('DB_PASSWORD', ''),
+                host=os.getenv('DB_HOST', '127.0.0.1'),
+                port=os.getenv('DB_PORT', '3308'),
+                database=os.getenv('DB_NAME', 'pwd2025_tp6'),
+                auth_plugin='mysql_native_password'
             )
         except Exception as ex:
             print(f"❌ Error de conexión: Verifica:\n1. XAMPP corriendo\n2. MySQL en puerto 3308\n3. Las tablas existen\nError técnico: {ex}")

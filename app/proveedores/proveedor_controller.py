@@ -1,5 +1,4 @@
-from app._modulo.database.conect_db import ConectDB
-from app._modulo.proveedores.proveedor_model import ProveedorModel
+from .proveedor_model import ProveedorModel
 
 class ProveedorController:
     @staticmethod
@@ -12,7 +11,7 @@ class ProveedorController:
     @staticmethod
     def get_one(id):
         try:
-            proveedor = ProveedorModel.get_by_id(id)
+            proveedor = ProveedorModel.get_one(id)
             return proveedor if proveedor else {'error': 'Proveedor no encontrado'}
         except Exception as e:
             return {'error': str(e)}
@@ -24,12 +23,7 @@ class ProveedorController:
             if not all(field in data for field in required_fields):
                 return {'error': 'Faltan campos obligatorios'}
                 
-            proveedor = ProveedorModel(
-                nombre=data['nombre'],
-                telefono=data['telefono'],
-                direccion=data['direccion'],
-                email=data['email']
-            )
+            proveedor = ProveedorModel.deserializar(data)
             return {'success': True, 'id': proveedor.id} if proveedor.create() else {'error': 'Error al crear'}
         except Exception as e:
             return {'error': str(e)}

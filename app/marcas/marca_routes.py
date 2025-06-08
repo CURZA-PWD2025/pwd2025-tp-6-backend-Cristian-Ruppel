@@ -1,21 +1,21 @@
 from flask import Blueprint, jsonify, request
 from .marca_controller import MarcaController
 
-marca_bp = Blueprint('marca', __name__)
+marca_bp = Blueprint('marca', __name__, url_prefix='/api/marcas')
 
 @marca_bp.route('/', methods=['GET'])
 def get_all():
     response = MarcaController.get_all()
     if 'error' in response:
         return jsonify(response), 500
-    return jsonify(response) if response else jsonify({'mensaje': 'No hay marcas'}), 200
+    return jsonify(response), 200
 
 @marca_bp.route('/<int:id>', methods=['GET'])
 def get_one(id):
     response = MarcaController.get_one(id)
     if 'error' in response:
         return jsonify(response), 404 if response['error'] == 'Marca no encontrada' else 500
-    return jsonify(response)
+    return jsonify(response), 200
 
 @marca_bp.route('/', methods=['POST'])
 def create():

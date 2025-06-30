@@ -2,7 +2,7 @@ import os
 import mysql.connector
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), '../../.env'))  
 
 class ConectDB:
     @staticmethod
@@ -17,17 +17,28 @@ class ConectDB:
                 auth_plugin='mysql_native_password'
             )
         except Exception as ex:
-            print(f"❌ Error de conexión: Verifica:\n1. XAMPP corriendo\n2. MySQL en puerto 3308\n3. Las tablas existen\nError técnico: {ex}")
-            raise
+            raise ConnectionError(
+                f"Error de conexión a DB. Verifica:\n"
+                f"1. XAMPP con MySQL activo\n"
+                f"2. Puerto 3308 disponible\n"
+                f"3. Variables en .env\n"
+                f"Detalle: {str(ex)}"
+            )
 
     @staticmethod
     def execute_query(sql, params=None, fetch=False):
-        conn = ConectDB.get_connect()
-        cursor = conn.cursor(dictionary=True)
+        conn = None
         try:
+            conn = ConectDB.get_connect()
+            cursor = conn.cursor(dictionary=True)
             cursor.execute(sql, params or ())
             conn.commit()
             return cursor.fetchall() if fetch else cursor.rowcount
+        except Exception as ex:
+            if conn:
+                conn.rollback()
+            raise
         finally:
-            cursor.close()
-            conn.close()
+            if conn and conn.is_connected():
+                cursor.close()
+                conn.close()

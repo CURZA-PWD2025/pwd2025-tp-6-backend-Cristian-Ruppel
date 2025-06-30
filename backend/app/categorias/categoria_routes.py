@@ -6,15 +6,14 @@ categoria_bp = Blueprint('categoria', __name__, url_prefix='/api/categorias')
 @categoria_bp.route('/', methods=['GET'])
 def get_all():
     response = CategoriaController.get_all()
-    if 'error' in response:
-        return jsonify(response), 500
-    return jsonify(response), 200
+    return jsonify(response), 200 if 'error' not in response else 500
 
 @categoria_bp.route('/<int:id>', methods=['GET'])
 def get_one(id):
     response = CategoriaController.get_one(id)
     if 'error' in response:
-        return jsonify(response), 404 if response['error'] == 'Categoría no encontrada' else 500
+        status = 404 if response['error'] == 'Categoría no encontrada' else 500
+        return jsonify(response), status
     return jsonify(response), 200
 
 @categoria_bp.route('/', methods=['POST'])
